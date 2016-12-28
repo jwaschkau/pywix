@@ -74,6 +74,8 @@ setup(
     author_email='xoviat@noreply.users.github.com',
     packages=find_packages(),
     package_data={'pywix': ['files/*']},
+    setup_requires=['setuptools-markdown'],
+    long_description_markdown_filename='README.md'
     install_requires = ['setuptools', 'pip>=8.1.0', 'wheel>=0.25.0'],
     classifiers=[],
     cmdclass=cmdclass)
