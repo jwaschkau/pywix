@@ -18,10 +18,9 @@ def _ensure_wix_path():
 
 def call_wix_command(args):
     _ensure_wix_path()
+    executable = os.path.join(__wix_path, args[0])
+    if not executable.endswith('.exe'):
+        executable += '.exe'
+    args[0] = executable
 
-    current_dir = os.getcwd()
-    os.chdir(__wix_path)
-    output = subprocess.check_call(args)
-    os.chdir(current_dir)
-
-    return output
+    return subprocess.check_call(args)
