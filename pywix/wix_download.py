@@ -45,7 +45,7 @@ def _handle_win32(filename, targetfolder):
     print("* Done.")
 
 
-def download_wix(url=None, targetfolder=None):
+def download_wix(url=None, targetfolder=None, refresh=False):
     """Download and unpack pandoc
 
     Downloads prebuild binaries for pandoc from `url` and unpacks it into
@@ -60,6 +60,12 @@ def download_wix(url=None, targetfolder=None):
         location: `~/bin` on Linux, `~/Applications/pandoc` on Mac OS X, and
         `~\\AppData\\Local\\Pandoc` on Windows.
     """
+    if os.path.exists(targetfolder):
+        if refresh:
+            shutil.rmtree(targetfolder)
+        else:
+            return
+
     pf = sys.platform
 
     if pf not in PANDOC_URLS:
@@ -91,3 +97,5 @@ def download_wix(url=None, targetfolder=None):
     unpack = globals().get("_handle_" + pf)
     assert unpack is not None, "Can't handle download, only Windows is supported."
     unpack(filename, targetfolder)
+
+    os.remove(filename)

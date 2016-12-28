@@ -19,3 +19,4 @@ WiX
 __pycache__/
 pywix.egg-info/
 pywix/__pycache__/
+.eggs/
