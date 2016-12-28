@@ -13,5 +13,9 @@ pandoc-*.msi
 pandoc-*.deb
 pandoc-*.pkg
 # The downloaded files end up here
-pypandoc/files/
+pywix/files/
 build/
+WiX
+__pycache__/
+pywix.egg-info/
+pywix/__pycache__/

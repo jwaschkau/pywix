@@ -1,6 +1,4 @@
 include README.md
 include LICENSE
-include tests.py
-include filter_test.md
-include examples/*
-
+include versioneer.py
+include pywix/_version.py

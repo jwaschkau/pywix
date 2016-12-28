@@ -1,34 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import pypandoc
-from setuptools import setup, Command
-
-import sys
 import os
 import os.path
+import sys
+
+from setuptools import setup, Command, find_packages
+
+import versioneer
 
 try:
     from urllib.request import urlopen
 except ImportError:
     from urllib import urlopen
 
-try:
-    long_description = pypandoc.convert('README.md', 'rst')
-    long_description = long_description.replace("\r","")
-except OSError as e:
-    print("\n\n!!! pandoc not found, long_description is bad, don't upload this to PyPI !!!\n\n")
-    import io
-    # pandoc is not installed, fallback to using raw contents
-    with io.open('README.md', encoding="utf-8") as f:
-        long_description = f.read()
 
+class DownloadWixCommand(Command):
+    """Download wix"""
 
-
-class DownloadPandocCommand(Command):
-
-    """Download pandoc"""
-
-    description = "downloads a pandoc release and adds it to the package"
+    description = "downloads a wix release and adds it to the package"
     user_options = []
 
     def initialize_options(self):
@@ -38,71 +27,53 @@ class DownloadPandocCommand(Command):
         pass
 
     def run(self):
-        from pypandoc.pandoc_download import download_pandoc
-        targetfolder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "pypandoc", "files")
-        download_pandoc(targetfolder=targetfolder)
+        from pywix.wix_download import download_wix
+        targetfolder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "pywix", "files")
+        download_wix(targetfolder=targetfolder)
 
-
-cmd_classes = {'download_pandoc': DownloadPandocCommand}
-
-# Make sure wheels end up platform specific, if they include a pandoc binary
-has_pandoc = (os.path.isfile(os.path.join("pypandoc", "files", "pandoc")) or
-              os.path.isfile(os.path.join("pypandoc", "files", "pandoc.exe")))
 is_build_wheel = ("bdist_wheel" in sys.argv)
-is_download_pandoc = ("download_pandoc" in sys.argv)
 
 if is_build_wheel:
-    if has_pandoc or is_download_pandoc:
-        # we need to make sure that bdist_wheel is after is_download_pandoc,
-        # otherwise we don't include pandoc in the wheel... :-(
-        pos_bdist_wheel = sys.argv.index("bdist_wheel")
-        if is_download_pandoc:
-            pos_download_pandoc = sys.argv.index("download_pandoc")
-            if pos_bdist_wheel < pos_download_pandoc:
-                raise RuntimeError("'download_pandoc' needs to be before 'bdist_wheel'.")
-        # we also need to make sure that this version of bdist_wheel supports
-        # the --plat-name argument
-        try:
-            import wheel
-            from distutils.version import StrictVersion
-            if not StrictVersion(wheel.__version__) >= StrictVersion("0.27"):
-                msg = "Including pandoc in wheel needs wheel >=0.27 but found %s.\nPlease update wheel!"
-                raise RuntimeError(msg % wheel.__version__)
-        except ImportError:
-            # the real error will happen further down...
-            print("No wheel installed, please install 'wheel'...")
-        print("forcing platform specific wheel name...")
-        from distutils.util import get_platform
-        sys.argv.insert(pos_bdist_wheel + 1, '--plat-name')
-        sys.argv.insert(pos_bdist_wheel + 2, get_platform())
-    else:
-        print("no pandoc found, building platform unspecific wheel...")
-        print("use 'python setup.py download_pandoc' to download pandoc.")
+    # we need to make sure that bdist_wheel is after is_download_wix,
+    # otherwise we don't include wix in the wheel... :-(
+    sys.argv.insert(1, "download_wix")
+    is_download_wix = True
+    pos_bdist_wheel = sys.argv.index("bdist_wheel")
+    if is_download_wix:
+        pos_download_wix = sys.argv.index("download_wix")
+        if pos_bdist_wheel < pos_download_wix:
+            raise RuntimeError("'download_wix' needs to be before 'bdist_wheel'.")
+    # we also need to make sure that this version of bdist_wheel supports
+    # the --plat-name argument
+    try:
+        import wheel
+        from distutils.version import StrictVersion
 
-module = pypandoc
+        if not StrictVersion(wheel.__version__) >= StrictVersion("0.27"):
+            msg = "Including wix in wheel needs wheel >=0.27 but found %s.\nPlease update wheel!"
+            raise RuntimeError(msg % wheel.__version__)
+    except ImportError:
+        # the real error will happen further down...
+        print("No wheel installed, please install 'wheel'...")
+    print("forcing platform specific wheel name...")
+    from distutils.util import get_platform
+
+    sys.argv.insert(pos_bdist_wheel + 1, '--plat-name')
+    sys.argv.insert(pos_bdist_wheel + 2, get_platform())
+
+cmdclass = {'download_wix': DownloadWixCommand}
+cmdclass.update(versioneer.get_cmdclass())
+
 setup(
-    name = 'pypandoc',
-    version = module.__version__,
-    url = 'https://github.com/bebraw/pypandoc',
+    name='pywix',
+    version=versioneer.get_version(),
+    url='https://github.com/xoviat/pywix',
     license = 'MIT',
-    description = 'Thin wrapper for pandoc.',
-    long_description = long_description,
-    author = module.__author__,
-    author_email = 'bebraw@gmail.com',
-    packages = ['pypandoc'],
-    package_data={'pypandoc': ['files/*']},
+    description='Thin wrapper for WiX modelled on pypandoc.',
+    author='Mars Galactic',
+    author_email='xoviat@noreply.users.github.com',
+    packages=find_packages(),
+    package_data={'pywix': ['files/*']},
     install_requires = ['setuptools', 'pip>=8.1.0', 'wheel>=0.25.0'],
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'Intended Audience :: System Administrators',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: POSIX',
-        'Programming Language :: Python',
-        'Topic :: Text Processing',
-        'Topic :: Text Processing :: Filters',
-    ],
-    test_suite = 'tests',
-    cmdclass=cmd_classes
-)
+    classifiers=[],
+    cmdclass=cmdclass)
