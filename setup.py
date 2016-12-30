@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 import os
 import os.path
+import shutil
 import sys
 
 from setuptools import setup, Command, find_packages
+from setuptools.command.install import install
 
 import versioneer
 
@@ -26,10 +28,13 @@ class DownloadWixCommand(Command):
     def finalize_options(self):
         pass
 
+    @staticmethod
+    def target_folder():
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), "pywix", "files")
+
     def run(self):
         from pywix.wix_download import download_wix
-        targetfolder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "pywix", "files")
-        download_wix(targetfolder=targetfolder)
+        download_wix(targetfolder=self.target_folder())
 
 is_build_wheel = ("bdist_wheel" in sys.argv)
 
@@ -61,8 +66,26 @@ if is_build_wheel:
     sys.argv.insert(pos_bdist_wheel + 1, '--plat-name')
     sys.argv.insert(pos_bdist_wheel + 2, get_platform())
 
+
 cmdclass = {'download_wix': DownloadWixCommand}
 cmdclass.update(versioneer.get_cmdclass())
+sdist_class = cmdclass['sdist']
+
+
+class SourceDistCommand(sdist_class):
+    def run(self):
+        print('Removing WiX files')
+        shutil.rmtree(DownloadWixCommand.target_folder(), ignore_errors=True)
+        sdist_class.run(self)
+
+
+class InstallCommand(install):
+    def run(self):
+        install.run(self)
+
+
+cmdclass['sdist'] = SourceDistCommand
+cmdclass['install'] = InstallCommand
 
 setup(
     name='pywix',
