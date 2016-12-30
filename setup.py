@@ -82,7 +82,7 @@ class SourceDistCommand(sdist_class):
 class InstallCommand(install):
     def run(self):
         from pywix.wix_download import find_installed_dir
-        installed_dir = os.path.join(find_installed_dir(), 'bin')
+        installed_dir = os.path.join(find_installed_dir(remove_existing=True), 'bin')
         files_dir = DownloadWixCommand.target_folder()
         if not os.path.exists(installed_dir):
             # WiX is not installed, so we need to install it to the appropriate location

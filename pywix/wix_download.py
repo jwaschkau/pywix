@@ -26,7 +26,7 @@ DEFAULT_TARGET_FOLDER = {
 }
 
 
-def find_installed_dir():
+def find_installed_dir(remove_existing=False):
     # Find the Program Files folder
     if sys.platform == 'win32':
         if 'PROGRAMFILES(x86)' in os.environ:
@@ -43,6 +43,9 @@ def find_installed_dir():
             wix_folder = DEFAULT_TARGET_FOLDER[sys.platform]
             if wix_folder.startswith('~\\'):
                 wix_folder = os.path.join(os.environ['UserProfile'], wix_folder[2:])
+
+            if remove_existing:
+                shutil.rmtree(wix_folder, ignore_errors=True)
 
         return wix_folder
     else:
