@@ -34,7 +34,7 @@ class DownloadWixCommand(Command):
 
     def run(self):
         from pywix.wix_download import download_wix
-        download_wix(targetfolder=self.target_folder())
+        download_wix(target_folder=self.target_folder())
 
 is_build_wheel = ("bdist_wheel" in sys.argv)
 
@@ -81,7 +81,19 @@ class SourceDistCommand(sdist_class):
 
 class InstallCommand(install):
     def run(self):
+        from pywix.wix_download import find_installed_dir
+        installed_dir = os.path.join(find_installed_dir(), 'bin')
+        files_dir = DownloadWixCommand.target_folder()
+        if not os.path.exists(installed_dir):
+            # WiX is not installed, so we need to install it to the appropriate location
+            self.user = True  # WiX will be installed on a per-user basis
+            os.makedirs(installed_dir)
+
+            for file in os.listdir(files_dir):
+                shutil.copy(os.path.join(files_dir, file), installed_dir)
+
         install.run(self)
+        shutil.rmtree(os.path.join(self.install_lib, 'pywix', 'files'), ignore_errors=True)
 
 
 cmdclass['sdist'] = SourceDistCommand

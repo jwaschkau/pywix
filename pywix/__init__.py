@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+from pywix.wix_download import find_installed_dir
 from ._version import get_versions
 
 __version__ = get_versions()['version']
@@ -13,7 +14,7 @@ def _ensure_wix_path():
     global __wix_path
 
     if __wix_path is None:
-        __wix_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "files")
+        __wix_path = os.path.join(find_installed_dir(), 'bin')
 
 
 def call_wix_command(args):
