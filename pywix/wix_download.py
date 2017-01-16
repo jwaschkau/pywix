@@ -26,6 +26,10 @@ DEFAULT_TARGET_FOLDER = {
 }
 
 
+def wix_folder():
+    return os.path.join(os.path.dirname(__file__), 'files')
+
+
 def find_installed_dir(remove_existing=False):
     # Find the Program Files folder
     if sys.platform == 'win32':
@@ -40,12 +44,7 @@ def find_installed_dir(remove_existing=False):
                 break
 
         if not wix_folder:
-            wix_folder = DEFAULT_TARGET_FOLDER[sys.platform]
-            if wix_folder.startswith('~\\'):
-                wix_folder = os.path.join(os.environ['UserProfile'], wix_folder[2:])
-
-            if remove_existing:
-                shutil.rmtree(wix_folder, ignore_errors=True)
+            wix_folder = wix_folder()
 
         return wix_folder
     else:
@@ -104,7 +103,7 @@ def download_wix(url=None, target_folder=None, refresh=False):
     if os.path.isfile(filename):
         print('* Using already downloaded file %s' % (filename))
     else:
-        print('* Downloading pandoc from %s ...' % url)
+        print('* Downloading WiX from %s ...' % url)
         # https://stackoverflow.com/questions/30627937/tracebaclk-attributeerroraddinfourl-instance-has-no-attribute-exit
         response = urlopen(url)
         with open(filename, 'wb') as out_file:

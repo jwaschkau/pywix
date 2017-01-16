@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-import os.path
 import shutil
 import sys
 
 from setuptools import setup, Command, find_packages
-from setuptools.command.install import install
 
 import versioneer
 
@@ -30,7 +27,8 @@ class DownloadWixCommand(Command):
 
     @staticmethod
     def target_folder():
-        return os.path.join(os.path.dirname(os.path.realpath(__file__)), "pywix", "files")
+        from pywix.wix_download import wix_folder
+        return wix_folder()
 
     def run(self):
         from pywix.wix_download import download_wix
@@ -79,25 +77,7 @@ class SourceDistCommand(sdist_class):
         sdist_class.run(self)
 
 
-class InstallCommand(install):
-    def run(self):
-        from pywix.wix_download import find_installed_dir
-        installed_dir = os.path.join(find_installed_dir(remove_existing=True), 'bin')
-        files_dir = DownloadWixCommand.target_folder()
-        if not os.path.exists(installed_dir):
-            # WiX is not installed, so we need to install it to the appropriate location
-            self.user = True  # WiX will be installed on a per-user basis
-            os.makedirs(installed_dir)
-
-            for file in os.listdir(files_dir):
-                shutil.copy(os.path.join(files_dir, file), installed_dir)
-
-        install.run(self)
-        shutil.rmtree(os.path.join(self.install_lib, 'pywix', 'files'), ignore_errors=True)
-
-
 cmdclass['sdist'] = SourceDistCommand
-cmdclass['install'] = InstallCommand
 
 setup(
     name='pywix',
