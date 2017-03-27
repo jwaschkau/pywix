@@ -1,6 +1,7 @@
 import os
 import subprocess
 import versioneer
+import threading
 
 from setuptools import setup, find_packages
 from setuptools.command.install import install
@@ -24,31 +25,44 @@ def has_admin():
             return (os.environ['USERNAME'], False)
 
 
+def write_commands(powershell, commands):
+    powershell.stdin.write(b'\r\n'.join(commands))
+    powershell.stdin.write(b'\r\n\r\n')
+
+
 class InstallCommand(install):
     """
     Installs the wix files using chocolatey.
     """
 
     def run(self):
+        super().run()
+
         if not has_admin():
             raise RuntimeError(
                 'pywix installation requires administrative rights')
 
-        commands = [
-            'Set-ExecutionPolicy RemoteSigned',
-            'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
-            'choco install -y wixtoolset',
-            'choco install -y go-msi',
-            'exit',
+        sets = [
+            [
+                b'Set-ExecutionPolicy RemoteSigned',
+                b'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
+                b'exit'
+            ],
+            [
+                b'choco install -y --allow-empty-checksums wixtoolset',
+                b'choco install -y --allow-empty-checksums go-msi',
+                b'exit',
+            ],
         ]
 
-        powershell = subprocess.Popen(['powershell'])
-        powershell.stdin.writelines(commands)
-        powershell.stdin.write('\n')
+        for commands in sets:
+            powershell = subprocess.Popen(
+                ['powershell'], stdin=subprocess.PIPE)
+            write_commands(powershell, commands)
 
 
 cmdclass = versioneer.get_cmdclass()
-cmdclass['install'] = install
+cmdclass['install'] = InstallCommand
 
 setup(
     name='pywix',
