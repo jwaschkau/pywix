@@ -1,8 +1,27 @@
+import os
 import subprocess
 import versioneer
 
 from setuptools import setup, find_packages
 from setuptools.command.install import install
+
+
+def has_admin():
+    if os.name == 'nt':
+        try:
+            # only windows users with admin privileges can read the C:\windows\temp
+            temp = os.listdir(
+                os.sep.join(
+                    [os.environ.get('SystemRoot', 'C:\\windows'), 'temp']))
+        except Exception:
+            return (os.environ['USERNAME'], False)
+        else:
+            return (os.environ['USERNAME'], True)
+    else:
+        if 'SUDO_USER' in os.environ and os.geteuid() == 0:
+            return (os.environ['SUDO_USER'], True)
+        else:
+            return (os.environ['USERNAME'], False)
 
 
 class InstallCommand(install):
@@ -11,6 +30,10 @@ class InstallCommand(install):
     """
 
     def run(self):
+        if not has_admin():
+            raise RuntimeError(
+                'pywix installation requires administrative rights')
+
         commands = [
             'Set-ExecutionPolicy RemoteSigned',
             'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
