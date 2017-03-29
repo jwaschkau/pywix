@@ -58,7 +58,7 @@ class InstallCommand(install):
             ],
         ]
 
-        if b'Chocolatey' in write_commands(['choco']):
+        if b'Chocolatey' in write_commands([b'choco']):
             sets = sets[1:]
 
         for commands in sets:
