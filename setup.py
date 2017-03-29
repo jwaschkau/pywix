@@ -31,8 +31,13 @@ def write_commands(commands):
     powershell = subprocess.Popen(
         ['powershell'], stdin=subprocess.PIPE, stdout=sys.stdout)
 
-    powershell.stdin.write(b'\r\n'.join(commands + [b'exit']))
-    powershell.stdin.write(b'\r\n\r\n')
+    def write_async(powershell, commands):
+        powershell.stdin.write(b'\r\n'.join(commands + [b'exit']))
+        powershell.stdin.write(b'\r\n\r\n')
+
+    t = threading.Thread(target=write_async, args=(powershell, commands))
+    t.start()
+    powershell.wait(timeout=60)
 
 
 class InstallCommand(install):
