@@ -2,6 +2,7 @@ import os
 import subprocess
 import versioneer
 import threading
+import sys
 
 from setuptools import setup, find_packages
 from setuptools.command.install import install
@@ -27,7 +28,7 @@ def has_admin():
 
 def write_commands(commands):
     powershell = subprocess.Popen(
-        ['powershell'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        ['powershell'], stdin=subprocess.PIPE, stdout=sys.stdout)
 
     powershell.stdin.write(b'\r\n'.join(commands + [b'exit']))
     powershell.stdin.write(b'\r\n\r\n')
