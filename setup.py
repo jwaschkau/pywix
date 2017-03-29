@@ -25,9 +25,14 @@ def has_admin():
             return (os.environ['USERNAME'], False)
 
 
-def write_commands(powershell, commands):
-    powershell.stdin.write(b'\r\n'.join(commands))
+def write_commands(commands):
+    powershell = subprocess.Popen(
+        ['powershell'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+    powershell.stdin.write(b'\r\n'.join(commands + [b'exit']))
     powershell.stdin.write(b'\r\n\r\n')
+
+    return powershell.stdout.read()
 
 
 class InstallCommand(install):
@@ -46,19 +51,18 @@ class InstallCommand(install):
             [
                 b'Set-ExecutionPolicy RemoteSigned',
                 b'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
-                b'exit'
             ],
             [
                 b'choco install -y --allow-empty-checksums wixtoolset',
                 b'choco install -y --allow-empty-checksums go-msi',
-                b'exit',
             ],
         ]
 
+        if b'Chocolatey' in write_commands(['choco']):
+            sets = sets[1:]
+
         for commands in sets:
-            powershell = subprocess.Popen(
-                ['powershell'], stdin=subprocess.PIPE)
-            write_commands(powershell, commands)
+            write_commands(commands)
 
 
 cmdclass = versioneer.get_cmdclass()
