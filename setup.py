@@ -33,7 +33,7 @@ def write_commands(commands):
     powershell.stdin.write(b'\r\n'.join(commands + [b'exit']))
     powershell.stdin.write(b'\r\n\r\n')
 
-    return ''  # powershell.stdout.readline()
+    return b''  # powershell.stdout.readline()
 
 
 class InstallCommand(install):
