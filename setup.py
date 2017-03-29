@@ -6,6 +6,7 @@ import sys
 
 from setuptools import setup, find_packages
 from setuptools.command.install import install
+from go_msi import find_go_msi
 
 
 def has_admin():
@@ -33,8 +34,6 @@ def write_commands(commands):
     powershell.stdin.write(b'\r\n'.join(commands + [b'exit']))
     powershell.stdin.write(b'\r\n\r\n')
 
-    return b''  # powershell.stdout.readline()
-
 
 class InstallCommand(install):
     """
@@ -43,6 +42,12 @@ class InstallCommand(install):
 
     def run(self):
         super().run()
+
+        try:
+            find_go_msi()
+            return
+        except RuntimeError:
+            pass
 
         if not has_admin():
             raise RuntimeError(
@@ -58,9 +63,6 @@ class InstallCommand(install):
                 b'choco install -y --allow-empty-checksums go-msi',
             ],
         ]
-
-        if b'Chocolatey' in write_commands([b'choco']):
-            sets = sets[1:]
 
         for commands in sets:
             write_commands(commands)
