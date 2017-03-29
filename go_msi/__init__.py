@@ -62,3 +62,6 @@ def choco(**kwargs):
     --keep, -k                       Keep output directory containing build files (useful for debug)
     """
     return call_go_msi_command('choco', **kwargs)
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions

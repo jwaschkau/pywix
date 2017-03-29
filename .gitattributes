@@ -1,1 +1,2 @@
 pywix/_version.py export-subst
+go_msi/_version.py export-subst
