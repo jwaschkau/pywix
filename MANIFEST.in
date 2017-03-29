@@ -1,5 +1,4 @@
 include README.md
 include LICENSE
 include versioneer.py
-include pywix/_version.py
 include go_msi/_version.py
