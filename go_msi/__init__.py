@@ -41,7 +41,7 @@ def make(**kwargs):
     --license value, -l value  Path to the license file
     --keep, -k                 Keep output directory containing build files (useful for debug)
     """
-    return call_go_msi_command('make', **kwargs)
+    return call_go_msi_command('make', kwargs)
 
 
 def choco(**kwargs):
@@ -61,7 +61,9 @@ def choco(**kwargs):
     --changelog-cmd value, -c value  A command to generate the content of the changlog in the package
     --keep, -k                       Keep output directory containing build files (useful for debug)
     """
-    return call_go_msi_command('choco', **kwargs)
+    return call_go_msi_command('choco', kwargs)
+
+
 from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
