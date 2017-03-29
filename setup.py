@@ -29,7 +29,9 @@ def has_admin():
 
 def write_commands(commands):
     powershell = subprocess.Popen(
-        ['powershell'], stdin=subprocess.PIPE, stdout=sys.stdout)
+        ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass'],
+        stdin=subprocess.PIPE,
+        stdout=sys.stdout)
 
     def write_async(powershell, commands):
         powershell.stdin.write(b'\r\n'.join(commands + [b'exit']))
@@ -60,7 +62,6 @@ class InstallCommand(install):
 
         sets = [
             [
-                b'Set-ExecutionPolicy RemoteSigned',
                 b'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
             ],
             [
