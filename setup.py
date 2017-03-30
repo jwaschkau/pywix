@@ -30,6 +30,8 @@ def has_admin():
 def write_commands(commands):
 
     for command in commands:
+        assert isinstance(command, bytes)
+
         subprocess.call(
             [
                 b'powershell', b'-NoProfile', b'-NoLogo', b'-ExecutionPolicy',
