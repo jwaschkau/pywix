@@ -4,7 +4,6 @@ import versioneer
 import sys
 import textwrap
 
-from multiprocessing import Process
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 from go_msi import find_go_msi, find_wix_toolset
