@@ -6,7 +6,7 @@ import sys
 from multiprocessing import Process
 from setuptools import setup, find_packages
 from setuptools.command.install import install
-from go_msi import find_go_msi
+from go_msi import find_go_msi, find_wix_toolset
 
 
 def has_admin():
@@ -48,21 +48,27 @@ class InstallCommand(install):
     def run(self):
         super().run()
 
+        commands = []
+
         try:
             find_go_msi()
-            return
         except RuntimeError:
-            pass
+            commands.append(b'choco install -y --allow-empty-checksums go-msi')
 
-        if not has_admin():
-            raise RuntimeError(
-                'pywix installation requires administrative rights')
+        try:
+            find_wix_toolset()
+        except RuntimeError:
+            commands.append(
+                b'choco install -y --allow-empty-checksums wixtoolset')
 
-        write_commands([
-            b'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
-            b'choco install -y --allow-empty-checksums wixtoolset',
-            b'choco install -y --allow-empty-checksums go-msi',
-        ])
+        if commands:
+            if not has_admin():
+                raise RuntimeError(
+                    'pywix installation requires administrative rights')
+
+            write_commands([
+                b'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
+            ] + commands)
 
 
 cmdclass = versioneer.get_cmdclass()
