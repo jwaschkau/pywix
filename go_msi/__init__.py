@@ -64,6 +64,22 @@ def choco(**kwargs):
     return call_go_msi_command('choco', kwargs)
 
 
+def to_rtf(**kwargs):
+    """
+    NAME:
+    go-msi to-rtf - Write RTF formatted file
+
+    USAGE:
+    go-msi to-rtf [command options] [arguments...]
+
+    OPTIONS:
+    --src value, -s value  Path to a text file
+    --out value, -o value  Path to the RTF generated file
+    --reencode, -e         Also re encode UTF-8 to Windows1252 charset
+    """
+    return call_go_msi_command('to-rtf', kwargs)
+
+
 from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
