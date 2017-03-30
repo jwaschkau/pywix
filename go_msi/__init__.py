@@ -3,7 +3,15 @@ import os
 
 
 def find_go_msi():
-    path = os.path.join(os.environ["ProgramFiles"], 'go-msi', 'go-msi.exe')
+    path = ''
+    for program_files in [
+            os.environ["ProgramFiles"], os.environ["ProgramFiles(x86)"]
+    ]:
+        path = os.path.join(program_files, 'go-msi', 'go-msi.exe')
+
+        if os.path.isfile(path):
+            break
+
     if not os.path.isfile(path):
         raise RuntimeError('cannot find go-msi')
 
