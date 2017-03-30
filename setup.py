@@ -37,11 +37,10 @@ def write_commands(commands):
         powershell.stdin.write(b'\r\n'.join(commands + [b'exit']))
         powershell.stdin.write(b'\r\n\r\n')
 
-    p = Process(target=write_async, args=(commands, ))
-    p.start()
-    p.join(timeout=60)
-
     try:
+        p = Process(target=write_async, args=(commands, ))
+        p.start()
+        p.join(timeout=60)
         p.terminate()
     except Exception:
         pass
