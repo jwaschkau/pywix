@@ -46,6 +46,8 @@ def find_wix_toolset():
 
             path = os.path.join(program_files, wix, 'bin', 'candle.exe')
 
+            print('trying: {}'.format(path))
+
             if os.path.isfile(path):
                 break
         except IndexError:
@@ -66,6 +68,8 @@ def find_go_msi():
     path = ''
     for program_files in program_files_list():
         path = os.path.join(program_files, 'go-msi', 'go-msi.exe')
+
+        print('trying: {}'.format(path))
 
         if os.path.isfile(path):
             break
