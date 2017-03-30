@@ -34,8 +34,8 @@ def write_commands(commands):
 
         subprocess.call(
             [
-                b'powershell', b'-NoProfile', b'-NoLogo', b'-ExecutionPolicy',
-                b'Bypass', b'-c', command
+                'powershell', '-NoProfile', '-NoLogo', '-ExecutionPolicy',
+                'Bypass', '-c', command
             ],
             stdout=sys.stdout,
             stderr=sys.stderr,
@@ -55,13 +55,13 @@ class InstallCommand(install):
         try:
             find_go_msi()
         except RuntimeError:
-            commands.append(b'choco install -y --allow-empty-checksums go-msi')
+            commands.append('choco install -y --allow-empty-checksums go-msi')
 
         try:
             find_wix_toolset()
         except RuntimeError:
             commands.append(
-                b'choco install -y --allow-empty-checksums wixtoolset')
+                'choco install -y --allow-empty-checksums wixtoolset')
 
         if commands:
             if not has_admin():
@@ -69,7 +69,7 @@ class InstallCommand(install):
                     'pywix installation requires administrative rights')
 
             write_commands([
-                b'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
+                'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
             ] + commands)
 
 
