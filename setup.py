@@ -32,8 +32,8 @@ def write_commands(commands):
     for command in commands:
         subprocess.call(
             [
-                'powershell', '-NoProfile', '-NoLogo', '-ExecutionPolicy',
-                'Bypass', '-c', command
+                b'powershell', b'-NoProfile', b'-NoLogo', b'-ExecutionPolicy',
+                b'Bypass', b'-c', command
             ],
             stdout=sys.stdout,
             stderr=sys.stderr,
