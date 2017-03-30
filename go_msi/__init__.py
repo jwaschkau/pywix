@@ -2,11 +2,33 @@ import subprocess
 import os
 
 
+def program_files_list():
+    return [os.environ["ProgramFiles"], os.environ["ProgramFiles(x86)"]]
+
+
+def find_wix_toolset():
+    path = ''
+    for program_files in program_files_list():
+
+        wix = [
+            folder for folder in os.listdir(program_files)
+            if folder.startswith('Wix Toolset')
+        ][0]
+
+        path = os.path.join(program_files, wix, 'bin', 'candle.exe')
+
+        if os.path.isfile(path):
+            break
+
+    if not os.path.isfile(path):
+        raise RuntimeError('cannot find wix toolset')
+
+    return os.path.dirname(path)
+
+
 def find_go_msi():
     path = ''
-    for program_files in [
-            os.environ["ProgramFiles"], os.environ["ProgramFiles(x86)"]
-    ]:
+    for program_files in program_files_list():
         path = os.path.join(program_files, 'go-msi', 'go-msi.exe')
 
         if os.path.isfile(path):
@@ -19,7 +41,10 @@ def find_go_msi():
 
 
 def call_go_msi(args):
-    return subprocess.check_output([find_go_msi()] + args)
+    env = os.environ.copy()
+    env['PATH'] += ';{}'.format(find_wix_toolset())
+
+    return subprocess.check_output([find_go_msi()] + args, env=env)
 
 
 def call_go_msi_command(command, params):
