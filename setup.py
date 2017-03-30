@@ -1,9 +1,9 @@
 import os
 import subprocess
 import versioneer
-import threading
 import sys
 
+from multiprocessing import Process
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 from go_msi import find_go_msi
@@ -28,18 +28,23 @@ def has_admin():
 
 
 def write_commands(commands):
-    powershell = subprocess.Popen(
-        ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass'],
-        stdin=subprocess.PIPE,
-        stdout=sys.stdout)
+    def write_async(commands):
+        powershell = subprocess.Popen(
+            ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass'],
+            stdin=subprocess.PIPE,
+            stdout=sys.stdout)
 
-    def write_async(powershell, commands):
         powershell.stdin.write(b'\r\n'.join(commands + [b'exit']))
         powershell.stdin.write(b'\r\n\r\n')
 
-    t = threading.Thread(target=write_async, args=(powershell, commands))
-    t.start()
-    powershell.wait(timeout=60)
+    p = Process(target=write_async, args=(commands, ))
+    p.start()
+    p.join(timeout=60)
+
+    try:
+        p.terminate()
+    except Exception:
+        pass
 
 
 class InstallCommand(install):
