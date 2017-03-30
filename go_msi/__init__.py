@@ -1,11 +1,13 @@
 import subprocess
 import os
+import functools
 
 
 def program_files_list():
     return [os.environ["ProgramFiles"], os.environ["ProgramFiles(x86)"]]
 
 
+@functools.lru_cache(maxsize=None)
 def find_wix_toolset():
     path = ''
     for program_files in program_files_list():
@@ -26,6 +28,7 @@ def find_wix_toolset():
     return os.path.dirname(path)
 
 
+@functools.lru_cache(maxsize=None)
 def find_go_msi():
     path = ''
     for program_files in program_files_list():
