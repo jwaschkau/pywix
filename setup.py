@@ -2,6 +2,7 @@ import os
 import subprocess
 import versioneer
 import sys
+import textwrap
 
 from multiprocessing import Process
 from setuptools import setup, find_packages
@@ -30,7 +31,6 @@ def has_admin():
 def write_commands(commands):
 
     for command in commands:
-        assert isinstance(command, bytes)
 
         subprocess.call(
             [
@@ -66,7 +66,10 @@ class InstallCommand(install):
         if commands:
             if not has_admin():
                 raise RuntimeError(
-                    'pywix installation requires administrative rights')
+                    textwrap.dedent('''
+                    pywix needs to install the WiX toolset and/or go_msi, which 
+                    requires administrative rights
+                    ''').strip())
 
             write_commands([
                 'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
