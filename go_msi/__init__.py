@@ -18,7 +18,8 @@ def call_go_msi_command(command, params):
     args = [command]
     for key, value in params.items():
         args.append('--{}'.format(key))
-        args.append(value)
+        if value != True:
+            args.append(value)
 
     return call_go_msi(args)
 
