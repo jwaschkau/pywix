@@ -12,15 +12,18 @@ def find_wix_toolset():
     path = ''
     for program_files in program_files_list():
 
-        wix = [
-            folder for folder in os.listdir(program_files)
-            if folder.startswith('Wix Toolset')
-        ][0]
+        try:
+            wix = [
+                folder for folder in os.listdir(program_files)
+                if folder.startswith('WiX Toolset')
+            ][0]
 
-        path = os.path.join(program_files, wix, 'bin', 'candle.exe')
+            path = os.path.join(program_files, wix, 'bin', 'candle.exe')
 
-        if os.path.isfile(path):
-            break
+            if os.path.isfile(path):
+                break
+        except IndexError:
+            pass
 
     if not os.path.isfile(path):
         raise RuntimeError('cannot find wix toolset')
