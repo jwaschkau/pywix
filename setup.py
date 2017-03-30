@@ -74,6 +74,10 @@ class InstallCommand(install):
                 'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
             ] + commands)
 
+            # now these should work; fail fast
+            find_go_msi()
+            find_wix_toolset()
+
 
 cmdclass = versioneer.get_cmdclass()
 cmdclass['install'] = InstallCommand
