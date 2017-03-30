@@ -47,7 +47,7 @@ def find_wix_toolset():
     if not os.path.isfile(path):
         path = which('candle.exe')
 
-    if not os.path.isfile(path):
+    if not path or not os.path.isfile(path):
         raise RuntimeError('cannot find wix toolset')
 
     return os.path.dirname(path)
@@ -66,7 +66,7 @@ def find_go_msi():
     if not os.path.isfile(path):
         path = which('go-msi.exe')
 
-    if not os.path.isfile(path):
+    if not path or not os.path.isfile(path):
         raise RuntimeError('cannot find go-msi')
 
     return path
