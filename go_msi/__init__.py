@@ -44,7 +44,7 @@ def find_wix_toolset():
             pass
 
     # if not found, check the path
-    if not os.path.isfile(path):
+    if not path or not os.path.isfile(path):
         path = which('candle.exe')
 
     if not path or not os.path.isfile(path):
@@ -63,7 +63,7 @@ def find_go_msi():
             break
 
     # if not found, check the path
-    if not os.path.isfile(path):
+    if not path or not os.path.isfile(path):
         path = which('go-msi.exe')
 
     if not path or not os.path.isfile(path):
