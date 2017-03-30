@@ -28,22 +28,16 @@ def has_admin():
 
 
 def write_commands(commands):
-    def write_async(commands):
-        powershell = subprocess.Popen(
-            ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass'],
-            stdin=subprocess.PIPE,
-            stdout=sys.stdout)
 
-        powershell.stdin.write(b'\r\n'.join(commands + [b'exit']))
-        powershell.stdin.write(b'\r\n\r\n')
-
-    try:
-        p = Process(target=write_async, args=(commands, ))
-        p.start()
-        p.join(timeout=60)
-        p.terminate()
-    except Exception:
-        pass
+    for command in commands:
+        subprocess.call(
+            [
+                'powershell', '-NoProfile', '-NoLogo', '-ExecutionPolicy',
+                'Bypass', '-c', command
+            ],
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+            timeout=120)
 
 
 class InstallCommand(install):
@@ -64,18 +58,11 @@ class InstallCommand(install):
             raise RuntimeError(
                 'pywix installation requires administrative rights')
 
-        sets = [
-            [
-                b'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
-            ],
-            [
-                b'choco install -y --allow-empty-checksums wixtoolset',
-                b'choco install -y --allow-empty-checksums go-msi',
-            ],
-        ]
-
-        for commands in sets:
-            write_commands(commands)
+        write_commands([
+            b'iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex',
+            b'choco install -y --allow-empty-checksums wixtoolset',
+            b'choco install -y --allow-empty-checksums go-msi',
+        ])
 
 
 cmdclass = versioneer.get_cmdclass()
