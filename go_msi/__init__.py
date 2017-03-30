@@ -4,7 +4,15 @@ import functools
 
 
 def program_files_list():
-    return [os.environ["ProgramFiles"], os.environ["ProgramFiles(x86)"]]
+    x86 = os.environ["ProgramFiles(x86)"]
+    x64 = os.environ["ProgramFiles"]
+
+    if '(x86)' in x64:
+        # We're on 32 bit
+        x86 = x64
+        x64 = x64.replace('(x86)', '')
+
+    return [x86, x64]
 
 
 def which(program):
