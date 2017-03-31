@@ -38,7 +38,7 @@ def write_commands(commands):
             ],
             stdout=sys.stdout,
             stderr=sys.stderr,
-            timeout=120)
+            timeout=200)
 
 
 class InstallCommand(install):

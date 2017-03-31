@@ -51,7 +51,7 @@ def find_program(parts):
     else:
         path = which(parts[-1])
 
-        if not os.path.isfile(path):
+        if not path or not os.path.isfile(path):
             raise RuntimeError('cannot find {}'.format(os.sep.join(parts)))
 
     return path
