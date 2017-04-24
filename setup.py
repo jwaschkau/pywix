@@ -6,6 +6,7 @@ import textwrap
 
 from setuptools import setup, find_packages
 from setuptools.command.install import install
+from distutils.core import Command
 from go_msi import find_go_msi, find_wix_toolset
 
 
@@ -79,8 +80,16 @@ class InstallCommand(install):
             find_wix_toolset()
 
 
+class FakeBdistWheelCommand(Command):
+    """Fails the bdist_wheel command"""
+
+    def run(self):
+        raise Exception('bdist_wheel is unsupported')
+
+
 cmdclass = versioneer.get_cmdclass()
 cmdclass['install'] = InstallCommand
+cmdclass['bdist_wheel'] = FakeBdistWheelCommand
 
 setup(
     name='pywix',
