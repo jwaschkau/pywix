@@ -1,6 +1,5 @@
-import subprocess
 import os
-import functools
+import subprocess
 
 
 def program_files_list():
@@ -33,7 +32,6 @@ def which(program):
     return None
 
 
-@functools.lru_cache(maxsize=128)
 def find_wix_toolset():
     path = ''
     for program_files in program_files_list():
@@ -63,7 +61,6 @@ def find_wix_toolset():
     return os.path.dirname(path)
 
 
-@functools.lru_cache(maxsize=128)
 def find_go_msi():
     path = ''
     for program_files in program_files_list():
@@ -159,5 +156,6 @@ def to_rtf(**kwargs):
 
 
 from ._version import get_versions
+
 __version__ = get_versions()['version']
 del get_versions

@@ -31,14 +31,24 @@ def write_commands(commands):
 
     for command in commands:
 
-        subprocess.call(
-            [
-                'powershell', '-NoProfile', '-NoLogo', '-ExecutionPolicy',
-                'Bypass', '-c', command
-            ],
-            stdout=sys.stdout,
-            stderr=sys.stderr,
-            timeout=120)
+        if (sys.version_info > (3, 2)):
+            # only python > 3.2 has the timeout parameter
+            subprocess.call(
+                [
+                    'powershell', '-NoProfile', '-NoLogo', '-ExecutionPolicy',
+                    'Bypass', '-c', command
+                ],
+                stdout=sys.stdout,
+                stderr=sys.stderr,
+                timeout=120)
+        else:
+            subprocess.call(
+                [
+                    'powershell', '-NoProfile', '-NoLogo', '-ExecutionPolicy',
+                    'Bypass', '-c', command
+                ],
+                stdout=sys.stdout,
+                stderr=sys.stderr)
 
 
 class InstallCommand(install):
@@ -47,7 +57,7 @@ class InstallCommand(install):
     """
 
     def run(self):
-        super().run()
+        install.run(self)  # Compatibility with python2 because class is oldstyle with py2
 
         commands = []
 
