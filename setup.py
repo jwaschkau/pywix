@@ -1,12 +1,12 @@
 import os
 import subprocess
-import versioneer
 import sys
 import textwrap
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 from setuptools.command.install import install
-from go_msi import find_go_msi, find_wix_toolset
+
+import versioneer
 
 
 def has_admin():
@@ -28,7 +28,6 @@ def has_admin():
 
 
 def write_commands(commands):
-
     for command in commands:
 
         if (sys.version_info > (3, 2)):
@@ -57,6 +56,7 @@ class InstallCommand(install):
     """
 
     def run(self):
+        from go_msi import find_go_msi, find_wix_toolset
         install.run(self)  # Compatibility with python2 because class is oldstyle with py2
 
         commands = []
@@ -103,6 +103,11 @@ setup(
     packages=find_packages(),
     # setup_requires=['setuptools-markdown'],
     long_description_markdown_filename='README.md',
-    install_requires=['setuptools', 'pip>=8.1.0', 'wheel>=0.25.0'],
+    install_requires=[
+        'setuptools',
+        'pip>=8.1.0',
+        'wheel>=0.25.0',
+        'backports.functools_lru_cache;python_version<"3.0"'
+    ],
     classifiers=[],
     cmdclass=cmdclass)

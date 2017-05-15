@@ -1,5 +1,10 @@
-import os
 import subprocess
+import os
+
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
 
 
 def program_files_list():
@@ -32,6 +37,7 @@ def which(program):
     return None
 
 
+@lru_cache(maxsize=128)
 def find_wix_toolset():
     path = ''
     for program_files in program_files_list():
@@ -61,6 +67,7 @@ def find_wix_toolset():
     return os.path.dirname(path)
 
 
+@lru_cache(maxsize=128)
 def find_go_msi():
     path = ''
     for program_files in program_files_list():
@@ -156,6 +163,5 @@ def to_rtf(**kwargs):
 
 
 from ._version import get_versions
-
 __version__ = get_versions()['version']
 del get_versions
