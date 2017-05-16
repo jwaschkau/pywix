@@ -139,8 +139,3 @@ def to_rtf(**kwargs):
     --reencode, -e         Also re encode UTF-8 to Windows1252 charset
     """
     return call_go_msi_command('to-rtf', kwargs)
-
-
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions

@@ -1,6 +1,5 @@
 import os
 import subprocess
-import versioneer
 import sys
 import textwrap
 
@@ -87,21 +86,26 @@ class FakeBdistWheelCommand(Command):
         raise Exception('bdist_wheel is unsupported')
 
 
-cmdclass = versioneer.get_cmdclass()
-cmdclass['install'] = InstallCommand
-cmdclass['bdist_wheel'] = FakeBdistWheelCommand
-
 setup(
     name='pywix',
-    version=versioneer.get_version(),
     url='https://github.com/xoviat/pywix',
     license='MIT',
     description='Thin wrapper for WiX modelled on pypandoc.',
     author='Mars Galactic',
     author_email='xoviat@noreply.users.github.com',
-    packages=find_packages(),
-    # setup_requires=['setuptools-markdown'],
     long_description_markdown_filename='README.md',
-    install_requires=['setuptools', 'pip>=8.1.0', 'wheel>=0.25.0'],
-    classifiers=[],
-    cmdclass=cmdclass)
+    packages=find_packages(),
+    use_scm_version=True,
+    setup_requires=[
+        'setuptools-markdown',
+        'setuptools_scm',
+    ],
+    install_requires=[
+        'setuptools',
+        'pip>=8.1.0',
+        'wheel>=0.25.0',
+    ],
+    cmdclass={
+        'bdist_wheel': FakeBdistWheelCommand,
+        'install': InstallCommand,
+    })
