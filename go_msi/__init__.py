@@ -1,5 +1,6 @@
 import subprocess
 import os
+import glob
 
 try:
     from functools import lru_cache
@@ -19,10 +20,11 @@ def program_files_list():
     return [x86, x64]
 
 
-def which(program):
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+def is_exe(fpath):
+    return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
+
+def which(program):
     fpath, fname = os.path.split(program)
     if fpath:
         if is_exe(program):
@@ -38,54 +40,36 @@ def which(program):
 
 
 @lru_cache(maxsize=128)
-def find_wix_toolset():
+def find_program(parts):
     path = ''
     for program_files in program_files_list():
+        targets = [
+            target
+            for target in glob.glob(os.path.join(program_files, *parts))
+            if os.path.isfile(target)
+        ]
 
-        try:
-            wix = [
-                folder for folder in os.listdir(program_files)
-                if folder.startswith('WiX Toolset')
-            ][0]
+        if targets:
+            path = targets[0]
+            break
 
-            path = os.path.join(program_files, wix, 'bin', 'candle.exe')
+    else:
+        path = which(parts[-1])
 
-            print('trying: {}'.format(path))
+        if not path or not os.path.isfile(path):
+            raise RuntimeError('cannot find {}'.format(os.sep.join(parts)))
 
-            if os.path.isfile(path):
-                break
-        except IndexError:
-            pass
+    return path
 
-    # if not found, check the path
-    if not path or not os.path.isfile(path):
-        path = which('candle.exe')
 
-    if not path or not os.path.isfile(path):
-        raise RuntimeError('cannot find wix toolset')
-
-    return os.path.dirname(path)
+@functools.lru_cache(maxsize=128)
+def find_wix_toolset():
+    return os.path.dirname(find_program(['WiX Toolset*', 'bin', 'candle.exe']))
 
 
 @lru_cache(maxsize=128)
 def find_go_msi():
-    path = ''
-    for program_files in program_files_list():
-        path = os.path.join(program_files, 'go-msi', 'go-msi.exe')
-
-        print('trying: {}'.format(path))
-
-        if os.path.isfile(path):
-            break
-
-    # if not found, check the path
-    if not path or not os.path.isfile(path):
-        path = which('go-msi.exe')
-
-    if not path or not os.path.isfile(path):
-        raise RuntimeError('cannot find go-msi')
-
-    return path
+    return find_program(['go-msi', 'go-msi.exe'])
 
 
 def call_go_msi(args):
@@ -160,8 +144,3 @@ def to_rtf(**kwargs):
     --reencode, -e         Also re encode UTF-8 to Windows1252 charset
     """
     return call_go_msi_command('to-rtf', kwargs)
-
-
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions

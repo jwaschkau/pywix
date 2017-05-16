@@ -3,11 +3,9 @@ import subprocess
 import sys
 import textwrap
 
-from setuptools import find_packages, setup
+from setuptools import setup, find_packages
 from setuptools.command.install import install
-
-import versioneer
-
+from distutils.core import Command
 
 def has_admin():
     if os.name == 'nt':
@@ -39,7 +37,7 @@ def write_commands(commands):
                 ],
                 stdout=sys.stdout,
                 stderr=sys.stderr,
-                timeout=120)
+                timeout=200)
         else:
             subprocess.call(
                 [
@@ -89,25 +87,34 @@ class InstallCommand(install):
             find_wix_toolset()
 
 
-cmdclass = versioneer.get_cmdclass()
-cmdclass['install'] = InstallCommand
+class FakeBdistWheelCommand(Command):
+    """Fails the bdist_wheel command"""
+
+    def run(self):
+        raise Exception('bdist_wheel is unsupported')
+
 
 setup(
     name='pywix',
-    version=versioneer.get_version(),
     url='https://github.com/xoviat/pywix',
     license='MIT',
     description='Thin wrapper for WiX modelled on pypandoc.',
     author='Mars Galactic',
     author_email='xoviat@noreply.users.github.com',
-    packages=find_packages(),
-    # setup_requires=['setuptools-markdown'],
     long_description_markdown_filename='README.md',
+    packages=find_packages(),
+    use_scm_version=True,
+    setup_requires=[
+        'setuptools-markdown',
+        'setuptools_scm',
+    ],
     install_requires=[
         'setuptools',
         'pip>=8.1.0',
         'wheel>=0.25.0',
-        'backports.functools_lru_cache;python_version<"3.0"'
+        'backports.functools_lru_cache;python_version<"3.0"',
     ],
-    classifiers=[],
-    cmdclass=cmdclass)
+    cmdclass={
+        'bdist_wheel': FakeBdistWheelCommand,
+        'install': InstallCommand,
+    })
