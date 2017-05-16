@@ -112,7 +112,7 @@ setup(
         'setuptools',
         'pip>=8.1.0',
         'wheel>=0.25.0',
-        'backports.functools_lru_cache;python_version<"3.0"',
+        'backports.functools_lru_cache;python_version<"3.3"',
     ],
     cmdclass={
         'bdist_wheel': FakeBdistWheelCommand,
