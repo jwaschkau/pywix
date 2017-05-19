@@ -62,7 +62,7 @@ def find_program(parts):
     return path
 
 
-@functools.lru_cache(maxsize=128)
+@lru_cache(maxsize=128)
 def find_wix_toolset():
     return os.path.dirname(find_program(['WiX Toolset*', 'bin', 'candle.exe']))
 
